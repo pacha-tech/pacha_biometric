@@ -1,0 +1,28 @@
+name: pacha_biometric
+description: Un plugin Flutter pour accéder à la biométrie via une bibliothèque Java
+version: 0.0.1
+homepage: https://github.com/pacha-tech/pacha_biometric
+repository: https://github.com/pacha-tech/pacha_biometric
+issue_tracker: https://github.com/pacha-tech/pacha_biometric/issues
+publish_to: 'https://pub.dev'
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.3.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.0.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.example.pacha_biometric
+        pluginClass: PachaBiometricPlugin

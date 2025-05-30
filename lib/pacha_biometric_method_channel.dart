@@ -14,4 +14,10 @@ class MethodChannelPachaBiometric extends PachaBiometricPlatform {
     final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
+
+  @override
+  Future<String?> authenticate() async {
+    final result = await _channel.invokeMethod<String>('authenticate');
+    return result;
+  }
 }
