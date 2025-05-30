@@ -7,7 +7,7 @@ import 'pacha_biometric_platform_interface.dart';
 class MethodChannelPachaBiometric extends PachaBiometricPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
-  final methodChannel = const MethodChannel('pacha_biometric');
+  final MethodChannel methodChannel = const MethodChannel('pacha_biometric');
 
   @override
   Future<String?> getPlatformVersion() async {
@@ -17,7 +17,7 @@ class MethodChannelPachaBiometric extends PachaBiometricPlatform {
 
   @override
   Future<String?> authenticate() async {
-    final result = await _channel.invokeMethod<String>('authenticate');
+    final result = await methodChannel.invokeMethod<String>('authenticate');
     return result;
   }
 }
