@@ -10,10 +10,13 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
+import androidx.biometric.BiometricPrompt
+import androidx.biometric.BiometricManager
+import androidx.core.content.ContextCompat
 
 class PachaBiometricPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
-    private lateinit var channel : MethodChannel
+    private lateinit var channel: MethodChannel
     private var context: Context? = null
     private var activity: Activity? = null
     private var biometricHelper: BiometricHelper? = null
@@ -34,7 +37,7 @@ class PachaBiometricPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("NO_ACTIVITY", "Activity is null", null)
                     return
                 }
-                biometricHelper = BiometricHelper(activity!!)
+                biometricHelper = BiometricHelper(activity as androidx.fragment.app.FragmentActivity)
                 biometricHelper!!.authenticate(object : BiometricHelper.BiometricCallback {
                     override fun onSuccess(message: String) {
                         result.success(message)

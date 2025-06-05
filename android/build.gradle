@@ -8,7 +8,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.1.0") // Utilise une version stable compatible Flutter
+        classpath("com.android.tools.build:gradle:8.1.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version")
     }
 }
@@ -42,13 +42,17 @@ android {
 repositories {
     google()
     mavenCentral()
+    
     flatDir {
         dirs 'libs'
     }
 }
 
 dependencies {
-    implementation(name: "pacha-release", ext: "aar")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.0.0")
+    
+    // Dépendances nécessaires pour le fonctionnement biométrique
+    implementation("androidx.core:core-ktx:1.10.1") // Ajout essentiel pour ContextCompat
+    implementation("androidx.biometric:biometric:1.1.0") // Authentification biométrique
 }

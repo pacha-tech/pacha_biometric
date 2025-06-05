@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 
 import 'pacha_biometric_platform_interface.dart';
 
-/// An implementation of [PachaBiometricPlatform] that uses method channels.
+/// Une implémentation de [PachaBiometricPlatform] qui utilise des canaux de méthode.
 class MethodChannelPachaBiometric extends PachaBiometricPlatform {
-  /// The method channel used to interact with the native platform.
+  /// Le canal de méthode utilisé pour interagir avec la plateforme native.
   @visibleForTesting
   final MethodChannel methodChannel = const MethodChannel('pacha_biometric');
 
