@@ -5,7 +5,13 @@ class PachaBiometric {
     return PachaBiometricPlatform.instance.getPlatformVersion();
   }
 
-  Future<String?> authenticate() {
-    return PachaBiometricPlatform.instance.authenticate();
+  Future<bool> authenticate() async {
+    try {
+      final result = await PachaBiometricPlatform.instance.authenticate();
+      return result == "Authentication succeeded";
+    } catch (e) {
+      // Facultatif : log ou traitement de l'erreur
+      return false;
+    }
   }
 }

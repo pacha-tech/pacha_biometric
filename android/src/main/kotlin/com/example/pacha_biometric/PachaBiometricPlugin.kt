@@ -14,7 +14,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricManager
 import androidx.core.content.ContextCompat
 
-class PachaBiometricPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
+class PachaBiometricPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
 
     private lateinit var channel: MethodChannel
     private var context: Context? = null
@@ -37,18 +37,19 @@ class PachaBiometricPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                     result.error("NO_ACTIVITY", "Activity is null", null)
                     return
                 }
+
                 biometricHelper = BiometricHelper(activity as androidx.fragment.app.FragmentActivity)
                 biometricHelper!!.authenticate(object : BiometricHelper.BiometricCallback {
                     override fun onSuccess(message: String) {
-                        result.success(message)
+                        result.success(true) // ✅ retourne bool en cas de succès
                     }
 
                     override fun onError(errorMessage: String) {
-                        result.error("AUTH_ERROR", errorMessage, null)
+                        result.error("AUTH_ERROR", errorMessage, null) // ❌ Erreur technique
                     }
 
                     override fun onFailed() {
-                        result.error("AUTH_FAILED", "Authentication failed", null)
+                        result.success(false) // ✅ retourne bool false pour échec simple
                     }
                 })
             }

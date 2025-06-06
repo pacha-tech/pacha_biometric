@@ -3,9 +3,8 @@ import 'package:flutter/services.dart';
 
 import 'pacha_biometric_platform_interface.dart';
 
-/// Une implémentation de [PachaBiometricPlatform] qui utilise des canaux de méthode.
+/// Implémentation native via MethodChannel
 class MethodChannelPachaBiometric extends PachaBiometricPlatform {
-  /// Le canal de méthode utilisé pour interagir avec la plateforme native.
   @visibleForTesting
   final MethodChannel methodChannel = const MethodChannel('pacha_biometric');
 
@@ -17,7 +16,12 @@ class MethodChannelPachaBiometric extends PachaBiometricPlatform {
 
   @override
   Future<String?> authenticate() async {
-    final result = await methodChannel.invokeMethod<String>('authenticate');
-    return result;
+    try {
+      final result = await methodChannel.invokeMethod<String>('authenticate');
+      return result;
+    } on PlatformException catch (e) {
+      // On relance l'exception avec le message d'erreur
+      throw Exception(e.message ?? 'Erreur biométrique inconnue');
+    }
   }
 }
