@@ -16,9 +16,16 @@ abstract class PachaBiometricPlatform extends PlatformInterface {
   }
 
   Future<String?> getPlatformVersion() {
-    throw UnimplementedError('getPlatformVersion() has not been implémentée.');
+    throw UnimplementedError('getPlatformVersion() has not been implemented.');
   }
 
-  /// Authentifie l'utilisateur. Renvoie un message en cas de succès.
-  Future<String?> authenticate();
+  /// Vérifie si la biométrie est disponible sur l'appareil.
+  Future<bool> canAuthenticate() {
+    throw UnimplementedError('canAuthenticate() has not been implemented.');
+  }
+
+  /// Authentifie l'utilisateur via biométrie.
+  ///
+  /// Retourne `true` si succès, `false` sinon.
+  Future<bool> authenticate();
 }

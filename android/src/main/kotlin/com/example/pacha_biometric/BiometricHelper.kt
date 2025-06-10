@@ -16,23 +16,25 @@ class BiometricHelper(private val activity: FragmentActivity) {
 
     private val TAG = "BiometricHelper"
 
-    fun authenticate(callback: BiometricCallback) {
+    fun authenticate(useFace: Boolean, callback: BiometricCallback) {
         val biometricManager = BiometricManager.from(activity)
-        val canAuthenticate = biometricManager.canAuthenticate(
-            BiometricManager.Authenticators.BIOMETRIC_STRONG or 
-            BiometricManager.Authenticators.DEVICE_CREDENTIAL
-        )
+        val authenticators = if (useFace) {
+            BiometricManager.Authenticators.BIOMETRIC_WEAK // Prioriser la reconnaissance faciale
+        } else {
+            BiometricManager.Authenticators.BIOMETRIC_STRONG // Prioriser l'empreinte
+        }
+        val canAuthenticate = biometricManager.canAuthenticate(authenticators)
 
-        Log.d(TAG, "canAuthenticate status: $canAuthenticate")
+        Log.d(TAG, "Vérification biométrique (useFace=$useFace) : code=$canAuthenticate")
 
         if (canAuthenticate != BiometricManager.BIOMETRIC_SUCCESS) {
             val errorMessage = when (canAuthenticate) {
-                BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> "Pas de matériel biométrique disponible."
-                BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> "Matériel biométrique actuellement indisponible."
-                BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> "Aucune donnée biométrique enregistrée."
-                else -> "Biométrie non disponible ou non configurée."
+                BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> "Aucun capteur ${if (useFace) "facial" else "d'empreinte"} disponible."
+                BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> "Capteur ${if (useFace) "facial" else "d'empreinte"} indisponible."
+                BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> "Aucune ${if (useFace) "donnée faciale" else "empreinte"} enregistrée. Ajoutez-en dans les paramètres."
+                else -> "${if (useFace) "Reconnaissance faciale" else "Biométrie"} non configurée (code: $canAuthenticate)."
             }
-            Log.e(TAG, errorMessage)
+            Log.e(TAG, "Échec de disponibilité : $errorMessage")
             callback.onError(errorMessage)
             return
         }
@@ -43,33 +45,40 @@ class BiometricHelper(private val activity: FragmentActivity) {
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
-                    Log.d(TAG, "Authentification réussie")
+                    val authType = when (result.authenticationType) {
+                        BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC -> if (useFace) "Reconnaissance faciale" else "Empreinte digitale"
+                        BiometricPrompt.AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL -> "PIN/Motif"
+                        else -> "Inconnu"
+                    }
+                    Log.d(TAG, "✅ Authentification réussie (type: $authType)")
                     callback.onSuccess("Authentification réussie.")
                 }
 
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
-                    Log.e(TAG, "Erreur d'authentification [$errorCode]: $errString")
-                    callback.onError("Erreur : $errString")
+                    Log.e(TAG, "❌ Erreur biométrique [code: $errorCode]: $errString")
+                    callback.onError("Erreur ${if (useFace) "faciale" else "biométrique"} [code: $errorCode]: $errString")
                 }
 
                 override fun onAuthenticationFailed() {
                     super.onAuthenticationFailed()
-                    Log.d(TAG, "Authentification échouée")
+                    Log.w(TAG, "👎 ${if (useFace) "Visage" else "Empreinte"} capté mais non reconnu.")
                     callback.onFailed()
                 }
             })
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Authentification requise")
-            .setSubtitle("Utilisez votre empreinte digitale pour continuer")
+            .setTitle("Authentification ${if (useFace) "faciale" else "biométrique"}")
+            .setSubtitle("Utilisez votre ${if (useFace) "visage" else "empreinte digitale"}")
             .setNegativeButtonText("Annuler")
+            .setAllowedAuthenticators(authenticators)
             .build()
 
         try {
             biometricPrompt.authenticate(promptInfo)
+            Log.d(TAG, "📲 Authentification ${if (useFace) "faciale" else "biométrique"} démarrée")
         } catch (e: Exception) {
-            Log.e(TAG, "Exception lors de l'authentification biométrique", e)
+            Log.e(TAG, "⚠️ Exception lors du démarrage : ${e.localizedMessage}", e)
             callback.onError("Erreur inattendue : ${e.localizedMessage ?: "inconnue"}")
         }
     }

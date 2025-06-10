@@ -15,12 +15,21 @@ class MethodChannelPachaBiometric extends PachaBiometricPlatform {
   }
 
   @override
-  Future<String?> authenticate() async {
+  Future<bool> canAuthenticate() async {
     try {
-      final result = await methodChannel.invokeMethod<String>('authenticate');
+      final bool result = await methodChannel.invokeMethod<bool>('canAuthenticate') ?? false;
       return result;
     } on PlatformException catch (e) {
-      // On relance l'exception avec le message d'erreur
+      throw Exception(e.message ?? 'Erreur lors de la vérification biométrique');
+    }
+  }
+
+  @override
+  Future<bool> authenticate() async {
+    try {
+      final bool result = await methodChannel.invokeMethod<bool>('authenticate') ?? false;
+      return result;
+    } on PlatformException catch (e) {
       throw Exception(e.message ?? 'Erreur biométrique inconnue');
     }
   }

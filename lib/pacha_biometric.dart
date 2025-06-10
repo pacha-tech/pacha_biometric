@@ -1,17 +1,32 @@
-import 'pacha_biometric_platform_interface.dart';
+import 'package:flutter/services.dart';
 
 class PachaBiometric {
-  Future<String?> getPlatformVersion() {
-    return PachaBiometricPlatform.instance.getPlatformVersion();
+  static const MethodChannel _channel = MethodChannel('pacha_biometric');
+
+  Future<String?> getPlatformVersion() async {
+    final String? version = await _channel.invokeMethod('getPlatformVersion');
+    return version;
   }
 
-  Future<bool> authenticate() async {
+  Future<bool> canAuthenticate() async {
     try {
-      final result = await PachaBiometricPlatform.instance.authenticate();
-      return result == "Authentication succeeded";
+      final bool canAuthenticate = await _channel.invokeMethod('canAuthenticate');
+      return canAuthenticate;
     } catch (e) {
-      // Facultatif : log ou traitement de l'erreur
+      print('Erreur lors de la vérification biométrique : $e');
       return false;
+    }
+  }
+
+  Future<bool> authenticate({bool useFace = false}) async {
+    try {
+      final bool isAuthenticated = await _channel.invokeMethod('authenticate', {
+        'useFace': useFace,
+      });
+      return isAuthenticated;
+    } catch (e) {
+      print('Erreur lors de l\'authentification : $e');
+      throw e;
     }
   }
 }
