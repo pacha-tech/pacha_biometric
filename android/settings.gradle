@@ -1,1 +1,3 @@
+include ':pacha_biometric'
+
 rootProject.name = 'pacha_biometric'

@@ -3,34 +3,39 @@ import 'package:flutter/services.dart';
 
 import 'pacha_biometric_platform_interface.dart';
 
-/// Implémentation native via MethodChannel
 class MethodChannelPachaBiometric extends PachaBiometricPlatform {
   @visibleForTesting
-  final MethodChannel methodChannel = const MethodChannel('pacha_biometric');
+  final methodChannel = MethodChannel('com.example.pacha_biometric/system'); // Aligné avec PachaBiometricPlugin.kt
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final String? version = await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
 
   @override
   Future<bool> canAuthenticate() async {
-    try {
-      final bool result = await methodChannel.invokeMethod<bool>('canAuthenticate') ?? false;
-      return result;
-    } on PlatformException catch (e) {
-      throw Exception(e.message ?? 'Erreur lors de la vérification biométrique');
-    }
+    final bool? canAuthenticate = await methodChannel.invokeMethod<bool>('canAuthenticate');
+    return canAuthenticate ?? false;
   }
 
   @override
-  Future<bool> authenticate() async {
-    try {
-      final bool result = await methodChannel.invokeMethod<bool>('authenticate') ?? false;
-      return result;
-    } on PlatformException catch (e) {
-      throw Exception(e.message ?? 'Erreur biométrique inconnue');
-    }
+  Future<bool> authenticate({bool useFace = false}) async {
+    final bool? isAuthenticated = await methodChannel.invokeMethod<bool>(
+      'authenticate',
+      {'useFace': useFace},
+    );
+    return isAuthenticated ?? false;
+  }
+
+  @override
+  Future<String?> capturePhoto() async {
+    final String? photoPath = await methodChannel.invokeMethod<String>('capturePhoto');
+    return photoPath;
+  }
+
+  @override
+  Future<void> startService() async {
+    await methodChannel.invokeMethod<void>('startService'); // Appelle la méthode native
   }
 }

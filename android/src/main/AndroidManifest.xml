@@ -1,3 +1,38 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.example.pacha_biometric">
+    package="com.example.pacha_biometric">
+
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+    <application>
+        <service
+            android:name=".LockScreenService"
+            android:enabled="true"
+            android:exported="false" /> <!-- Ajouté pour clarté -->
+
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="false"> <!-- Ajouté, car interne à l’app -->
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".MyDeviceAdminReceiver"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:enabled="true"
+            android:exported="true"> <!-- Ajouté, car accessible au système -->
+            <meta-data
+                android:name="android.app.device_admin"
+                android:resource="@xml/device_admin_policies"/>
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED"/>
+                <action android:name="android.app.action.DEVICE_ADMIN_DISABLED"/>
+            </intent-filter>
+        </receiver>
+    </application>
 </manifest>

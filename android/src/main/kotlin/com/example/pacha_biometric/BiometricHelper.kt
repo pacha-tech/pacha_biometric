@@ -1,16 +1,17 @@
 package com.example.pacha_biometric
 
 import android.util.Log
-import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.biometric.BiometricManager.Authenticators
 
 class BiometricHelper(private val activity: FragmentActivity) {
 
     interface BiometricCallback {
         fun onSuccess(message: String)
-        fun onError(errorMessage: String)
+        fun onError(errorMessage: String?)
         fun onFailed()
     }
 
@@ -19,13 +20,13 @@ class BiometricHelper(private val activity: FragmentActivity) {
     fun authenticate(useFace: Boolean, callback: BiometricCallback) {
         val biometricManager = BiometricManager.from(activity)
         val authenticators = if (useFace) {
-            BiometricManager.Authenticators.BIOMETRIC_WEAK // Prioriser la reconnaissance faciale
+            BiometricManager.Authenticators.BIOMETRIC_WEAK // Approximation pour la reconnaissance faciale
         } else {
-            BiometricManager.Authenticators.BIOMETRIC_STRONG // Prioriser l'empreinte
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
         }
         val canAuthenticate = biometricManager.canAuthenticate(authenticators)
 
-        Log.d(TAG, "Vérification biométrique (useFace=$useFace) : code=$canAuthenticate")
+        Log.d(TAG, "Vérification biométrique (useFace=$useFace, authenticators=$authenticators): code=$canAuthenticate")
 
         if (canAuthenticate != BiometricManager.BIOMETRIC_SUCCESS) {
             val errorMessage = when (canAuthenticate) {
@@ -69,7 +70,7 @@ class BiometricHelper(private val activity: FragmentActivity) {
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("Authentification ${if (useFace) "faciale" else "biométrique"}")
-            .setSubtitle("Utilisez votre ${if (useFace) "visage" else "empreinte digitale"}")
+            .setSubtitle(if (useFace) "Regardez la caméra frontale" else "Utilisez votre empreinte digitale")
             .setNegativeButtonText("Annuler")
             .setAllowedAuthenticators(authenticators)
             .build()
